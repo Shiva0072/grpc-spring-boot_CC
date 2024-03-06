@@ -1,0 +1,5 @@
+grpc:
+  client:
+    grpc-BookAuthorService-Server-channel:
+      address: static://localhost:9000
+      negotiation-type: plaintext

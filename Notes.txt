@@ -1,0 +1,5 @@
+YT video : https://www.youtube.com/watch?v=zCXN4wj0uPo&list=PL9sWWgDDTZOZR2UiZFglyoSpOKrrUSGyr&ab_channel=DevProblems
+
+working:
+up the services and then use :
+curl http://localhost:8080/author/1
