@@ -6,12 +6,10 @@ import com.grpcInterface.Book;
 import com.grpcInterface.BookAuthorServiceGrpc;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.example.TempDb;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -53,5 +51,29 @@ public class BookAuthorClientService {
         return awaited ? response: Collections.emptyList();
     }
 
+    public Map<String,Map<Descriptors.FieldDescriptor,Object>> getExpensiveBookViaClientStream() throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        Map<String,Map<Descriptors.FieldDescriptor,Object>> response = new HashMap<>();
+        StreamObserver<Book> responseObserver = asynchronousClient.getExpensiveBook(new StreamObserver<Book>() {
+            @Override
+            public void onNext(Book book) {
+                response.put("Expensive_book",book.getAllFields());
+            }
+            @Override
+            public void onError(Throwable throwable) {
+                countDownLatch.countDown();
+            }
+            @Override
+            public void onCompleted() {
+                countDownLatch.countDown();
+            }
+        });
+        TempDb.getBooksFromTempDb().forEach(responseObserver::onNext);
+        responseObserver.onCompleted();
+        boolean awaited = countDownLatch.await(1, TimeUnit.MINUTES);
+        return awaited ? response : Collections.emptyMap();
+        //this may seem counter-intuitive, but actually, forEach accesses the onNext written on server side. and then
+        //when the server responds it accesses the onNext written here.
+    }
 
 }
