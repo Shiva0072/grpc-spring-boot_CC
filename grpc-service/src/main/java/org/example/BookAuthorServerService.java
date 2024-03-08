@@ -60,4 +60,9 @@ public class BookAuthorServerService extends BookAuthorServiceGrpc.BookAuthorSer
             }
         };
     }
+
+    @Override
+    public StreamObserver<Book> getBookByAuthorGender(StreamObserver<Book> responseObserver) {
+
+    }
 }
